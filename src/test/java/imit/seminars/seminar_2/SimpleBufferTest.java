@@ -27,7 +27,8 @@ public class SimpleBufferTest {
         for (int i = 0; i < BUFF_SIZE; i++) {
             intBuff.add(i);
         }
-        for (int i = BUFF_SIZE - 1; i > 0; i--) {
+        System.out.println(intBuff);
+        for (int i = 0; i < BUFF_SIZE; i++) {
             assertEquals(intBuff.get(), i);
         }
     }

@@ -1,42 +1,14 @@
 package imit.seminars.seminar_2;
 
-public class SimpleBuffer<T> implements IBuffer<T>
-//    Iterable<T>
-{
-    private static class Node<T> {
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
-        private T data;
-        private Node<T> next;
-        public Node() {
-            data = null;
-            next = null;
-        }
-
-        public Node(T data) {
-            this.data = data;
-            this.next = null;
-        }
-
-        public T getData() {
-            return data;
-        }
-
-        public void setData(T data) {
-            this.data = data;
-        }
-
-        public Node<T> getNext() {
-            return next;
-        }
-
-        public void setNext(Node<T> next) {
-            this.next = next;
-        }
-
-    }
+public class SimpleBuffer<T> implements IBuffer<T>, Iterable<Node<T>> {
     private Node<T> head;
-
     private Node<T> tail;
+
     private int size;
     public SimpleBuffer() {
         head = new Node<T>();
@@ -45,7 +17,6 @@ public class SimpleBuffer<T> implements IBuffer<T>
         tail.setNext(null);
         size = 0;
     }
-
     @Override
     public void add(T element) {
         if (isEmpty()) {
@@ -53,7 +24,8 @@ public class SimpleBuffer<T> implements IBuffer<T>
             head.setData(element);
             head.setNext(tail);
         } else {
-            tail.setNext(new Node<T>(element));
+            tail.setData(element);
+            tail.setNext(new Node<T>());
             tail = tail.getNext();
         }
         ++size;
@@ -61,12 +33,8 @@ public class SimpleBuffer<T> implements IBuffer<T>
 
     @Override
     public T get() {
-        T data = tail.getData();
-        Node<T> tmp = head;
-        while (tmp.getNext() != tail) {
-            tmp = tmp.getNext();
-        }
-        tail = tmp;
+        T data = head.getData();
+        head = head.getNext();
         --size;
 
         return data;
@@ -93,10 +61,32 @@ public class SimpleBuffer<T> implements IBuffer<T>
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SimpleBuffer{");
+
         sb.append("head=").append(head);
         sb.append(", tail=").append(tail);
         sb.append(", size=").append(size);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public Iterator<Node<T>> iterator() {
+        return new Iterator<>() {
+            private Node<T> current;
+            @Override
+            public boolean hasNext() {
+                if (current == null) {
+                    current = head;
+                    return Optional.ofNullable(current).isPresent();
+                } else {
+                    current = current.getNext();
+                    return Optional.ofNullable(current).isPresent();
+                }
+            }
+            @Override
+            public Node<T> next() {
+                return current.getNext();
+            }
+        };
     }
 }
